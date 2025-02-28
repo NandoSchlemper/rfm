@@ -1,16 +1,16 @@
 package models
 
-import "time"
+import (
+	"gorm.io/gorm"
+)
 
 type Driver struct {
-	Id         string
-	name       string
-	cpf        string
-	created_at time.Time
-	created_by string
+	gorm.Model
+	Name string
+	Cpf  string
 }
 
 type DriverDTO struct {
-	name string
-	cpf  string
+	Name string
+	Cpf  string
 }

@@ -3,25 +3,20 @@ package database
 import (
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"rfmtransportes/internal/database"
+	"rfmtransportes/internal/models"
 )
 
 type NeonDB struct {
-	URI string
+	DB *gorm.DB
 }
 
-func NewNeonDB() *NeonDB {
-	return &NeonDB{
-		URI: os.Getenv("DATABASE_URL"),
-	}
-}
-
-func (database *NeonDB) Connection() *gorm.DB {
-	db, err := gorm.Open(postgres.Open(database.URI), &gorm.Config{})
-	if err != nil {
-		fmt.Print("Erro ao conectar no DB")
-	}
-	return db
+func (n *NeonDB) Connection() error {
+	godotenv.Load()
 }

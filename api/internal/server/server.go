@@ -1,33 +1,46 @@
 package server
 
 import (
-	"database/sql"
+	"errors"
+	"fmt"
 	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
+
+	"rfmtransportes/internal/handlers"
+	"rfmtransportes/internal/services"
 )
 
 type Server struct {
 	Router *http.ServeMux
-	// driverService
+	Driver *services.DriverService
 }
 
-func NewServer(
-	db *sql.DB,
-) *Server {
+func NewServer() *Server {
 	s := &Server{
 		Router: http.NewServeMux(),
-		// driver service
+		Driver: &services.DriverService{},
 	}
 	s.addRoutes()
 	return s
 }
 
 func (s *Server) addRoutes() {
-	// s.Router.Handle(path, handler)
-
-	// driverHandler := handlers.NewDriverHandler(s.userService)
-	// defining routes --> s.router.HandleFunc(path, driverHandler.GetDriverByID) ??
+	handlers.RegisterDriverHandlers(s.Router)
 }
 
-func (s *Server) Start(addr string) error {
-	return http.ListenAndServe(addr, s.Router)
+func (s *Server) Start() error {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Print("Erro ao carregar .env")
+		return errors.New("Erro ao carregar .env")
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		fmt.Print("Erro ao carregar PORT")
+		return errors.New("Carregamento de port invalido")
+	}
+	return http.ListenAndServe(port, s.Router)
 }
