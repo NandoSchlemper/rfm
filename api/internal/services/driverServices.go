@@ -1,22 +1,32 @@
 package services
 
 import (
-	"rfmtransportes/internal/database"
+	"fmt"
+
+	"gorm.io/gorm"
+
 	m "rfmtransportes/internal/models"
 )
 
-type DriverService struct{}
+type DriverService struct {
+	DB *gorm.DB
+}
 
-func (d *DriverService) Create(
-	dto m.DriverDTO,
-	db *database.NeonDB,
-) error {
-	conn := db.Connection()
-	driver := m.Driver{
-		Name: dto.Name,
-		Cpf:  dto.Cpf,
+func (d *DriverService) CreateDriver(dto m.DriverDTO) error {
+	requestBody := m.DriverDTO{Name: dto.Name, Cpf: dto.Cpf}
+
+	error := d.DB.First(&requestBody.Cpf)
+	if error != nil {
+		fmt.Println("Erro ao cadastrar motorista")
+		return fmt.Errorf("Motorista já cadastrado no sistema")
 	}
 
-	result := conn.Create(&driver)
-	return result.Error
+	err := d.DB.Create(&requestBody)
+	if err != nil {
+		fmt.Print("Erro ao cadastrar motorista")
+		return fmt.Errorf("Erro ao criar motorista!\n%s", err.Error)
+	}
+
+	fmt.Print("Motorista cadastrado com sucesso!")
+	return nil
 }

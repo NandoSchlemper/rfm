@@ -7,7 +7,7 @@ import (
 type Driver struct {
 	gorm.Model
 	Name string
-	Cpf  string
+	Cpf  string `gorm:"unique"`
 }
 
 type DriverDTO struct {

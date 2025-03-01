@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
-	"rfmtransportes/internal/database"
+	"gorm.io/gorm"
+
+	"rfmtransportes/internal/middlewares"
 	"rfmtransportes/internal/models"
 	"rfmtransportes/internal/services"
 )
@@ -14,15 +15,15 @@ func RegisterDriverHandlers(
 	mux *http.ServeMux,
 ) {
 	mux.HandleFunc("GET /", handleNothing)
-	mux.HandleFunc("POST /drivers/create", handleCreateUser)
+	mux.Handle("POST /drivers/create", middlewares.NewSetDBContext(handleCreateUser))
 }
 
 func handleNothing(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello! this is my application"))
 }
 
-func handleCreateUser(w http.ResponseWriter, r *http.Request) {
-	driverService := &services.DriverService{}
+func handleCreateUser(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
+	driverService := &services.DriverService{DB: db}
 
 	var dto models.DriverDTO
 	err := json.NewDecoder(r.Body).Decode(&dto)
@@ -31,9 +32,10 @@ func handleCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	creating := driverService.Create(dto, &database.NeonDB{})
-	if creating != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	dbInsertError := driverService.CreateDriver(dto)
+
+	if dbInsertError != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
