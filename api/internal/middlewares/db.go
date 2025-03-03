@@ -20,7 +20,3 @@ func (db *setDBContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	db.handler(w, r, connection)
 }
-
-func NewSetDBContext(handler HandlerWithDB) *setDBContext {
-	return &setDBContext{handler}
-}

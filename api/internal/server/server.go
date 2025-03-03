@@ -15,12 +15,14 @@ import (
 type Server struct {
 	Router *http.ServeMux
 	Driver *services.DriverService
+	User   *services.UserService
 }
 
 func NewServer() *Server {
 	s := &Server{
 		Router: http.NewServeMux(),
 		Driver: &services.DriverService{},
+		User:   &services.UserService{},
 	}
 	s.addRoutes()
 	return s
@@ -28,6 +30,7 @@ func NewServer() *Server {
 
 func (s *Server) addRoutes() {
 	handlers.RegisterDriverHandlers(s.Router)
+	handlers.RegisterUserHandlers(s.Router)
 }
 
 func (s *Server) Start() error {
