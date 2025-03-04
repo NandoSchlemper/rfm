@@ -29,8 +29,8 @@ func NewServer() *Server {
 }
 
 func (s *Server) addRoutes() {
-	handlers.RegisterDriverHandlers(s.Router)
 	handlers.RegisterUserHandlers(s.Router)
+	handlers.RegisterDriverHandlers(s.Router)
 }
 
 func (s *Server) Start() error {

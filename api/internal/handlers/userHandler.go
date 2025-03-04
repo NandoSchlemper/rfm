@@ -15,10 +15,10 @@ import (
 func RegisterUserHandlers(
 	mux *http.ServeMux,
 ) {
-	mux.Handle("POST user/create", m.NewSetDBContext(handleCreateUser))
-	mux.Handle("POST auth/login", m.NewSetDBContext(handleLoginUser))
-	mux.Handle("POST auth/register", m.NewSetDBContext(handleRegisterUser))
-	mux.Handle("GET auth/test", m.SecureRoute(handleToTestUser))
+	mux.Handle("POST /user/create", m.NewSetDBContext(handleCreateUser))
+	mux.Handle("POST /auth/login", m.NewSetDBContext(handleLoginUser))
+	mux.Handle("POST /auth/register", m.NewSetDBContext(handleRegisterUser))
+	mux.Handle("GET /auth/test", m.SecureRoute(handleToTestUser))
 }
 
 func handleCreateUser(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
@@ -57,7 +57,15 @@ func handleLoginUser(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	// w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		HttpOnly: true,
+		Secure:   true,
+		MaxAge:   3600,
+	}
+	http.SetCookie(w, cookie)
 	fmt.Fprint(w, "Login bem sucedido")
 }
 
@@ -79,7 +87,15 @@ func handleRegisterUser(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 		return
 	}
 
-	w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		HttpOnly: true,
+		MaxAge:   3600,
+		Secure:   true,
+	}
+	// w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	http.SetCookie(w, cookie)
 	fmt.Fprint(w, "Registro bem sucedido")
 }
 

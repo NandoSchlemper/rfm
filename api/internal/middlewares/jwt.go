@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 
 	"rfmtransportes/internal/models"
 )
@@ -25,16 +23,16 @@ func SecureRoute(jwt JwtMiddlewareHandler) *JwtMiddleware {
 
 func (j *JwtMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 1 Validar se temos um JWT
-	w.Header().Set("Content-Type", "application/json")
-	tokenString := r.Header.Get("Authorization")
-	if tokenString == "" {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Sem autorização")
-		return
+	// w.Header().Set("Content-Type", "application/json")
+	// tokenString := r.Header.Get("Authorization")
+	tokenString, err := r.Cookie("token")
+	fmt.Print(tokenString)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 	}
 
-	formattedToken := strings.TrimPrefix(tokenString, "Bearer ")
-	user, err := ValidateToken(formattedToken)
+	// formattedToken := strings.TrimPrefix(tokenString, "Bearer ")
+	user, err := ValidateToken(tokenString.Value)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(w, "Sem autorização")
@@ -48,12 +46,12 @@ func GenerateToken(payload *models.User) (string, error) {
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"user_id": payload.ID,
+			"user_id": payload,
 			"exp":     time.Now().Add(time.Hour * 24).Unix(),
 		},
 	)
-	godotenv.Load()
-	tokenString, err := token.SignedString(os.Getenv("SECRET_JWT"))
+	var secret []byte = []byte(os.Getenv("SECRET_JWT"))
+	tokenString, err := token.SignedString(secret)
 	if err != nil {
 		return "", err
 	}
@@ -62,8 +60,7 @@ func GenerateToken(payload *models.User) (string, error) {
 }
 
 func ValidateToken(tokenString string) (*models.User, error) {
-	godotenv.Load()
-	secret := os.Getenv("SECRET_JWT")
+	var secret []byte = []byte(os.Getenv("SECRET_JWT"))
 	token, err := jwt.ParseWithClaims(tokenString, &models.UserJwt{}, func(t *jwt.Token) (any, error) {
 		return secret, nil
 	})
@@ -76,6 +73,6 @@ func ValidateToken(tokenString string) (*models.User, error) {
 	}
 
 	userClaim := token.Claims.(*models.UserJwt)
-	userID := userClaim.User
-	return userID, nil
+	user := userClaim.User
+	return user, nil
 }

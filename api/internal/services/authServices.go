@@ -16,10 +16,10 @@ type AuthService struct {
 func (a *AuthService) Register(userDTO *models.User) (string, error) {
 	// Verificar se User DB, colcoar user DB, pegar payload, retornar token
 	payload := &models.User{Username: userDTO.Username, Password: userDTO.Password}
-	validateError := a.DB.First(&payload)
-	if validateError != nil {
-		return "", validateError.Error
-	}
+	//validateError := a.DB.First(&payload)
+	//if validateError != nil {
+	//	return "", validateError.Error
+	//}
 
 	createError := a.DB.Create(&payload)
 	if createError.Error != nil {
