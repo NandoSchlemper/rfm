@@ -19,13 +19,18 @@ func (n *NeonDB) Migrate() error {
 	db := n.Connection()
 
 	driver := m.Driver{}
+	user := m.User{}
 
+	fmt.Print("Começando migração!")
 	err := db.AutoMigrate(
 		&driver,
+		&user,
 	)
+	fmt.Print("Terminando a migração!")
 	if err != nil {
 		return fmt.Errorf("Erro ao migrar o banco\n%s", err.Error())
 	}
+
 	return nil
 }
 

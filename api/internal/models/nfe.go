@@ -6,6 +6,8 @@ type NFE struct {
 	gorm.Model
 	Numero      string
 	DataEmissão string
-	Load        *Load
-	User        *User
+	UserID      int
+	LoadID      int
+	Load        Load `gorm:"foreignkey:LoadID;references:ID"`
+	User        User `gorm:"foreignkey:UserID;references:ID"`
 }

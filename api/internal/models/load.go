@@ -9,11 +9,13 @@ type Load struct {
 	gorm.Model
 	Frete       decimal.Decimal
 	Description string
-	User        *User
+	UserID      int
+	User        User `gorm:"foreignkey:UserID;references:ID"`
 }
 
 type LoadDTO struct {
 	Frete       decimal.Decimal
 	Description string
-	User        *User
+	UserID      int
+	User        User `gorm:"foreignkey:UserID;references:ID"`
 }

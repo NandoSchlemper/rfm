@@ -7,12 +7,14 @@ type Plate struct {
 	Plate       string
 	Description string
 	Mark        string
-	User        *User
+	UserID      int
+	User        User `gorm:"foreignkey:UserID;references:ID"`
 }
 
 type PlateDTO struct {
 	Plate       string
 	Descriptiom string
 	Mark        string
-	User        *User
+	UserID      int
+	User        User `gorm:"foreignkey:UserID;references:ID"`
 }

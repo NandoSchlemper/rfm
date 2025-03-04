@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -18,6 +19,10 @@ type JwtMiddleware struct {
 	handler JwtMiddlewareHandler
 }
 
+func SecureRoute(jwt JwtMiddlewareHandler) *JwtMiddleware {
+	return &JwtMiddleware{handler: jwt}
+}
+
 func (j *JwtMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 1 Validar se temos um JWT
 	w.Header().Set("Content-Type", "application/json")
@@ -28,7 +33,8 @@ func (j *JwtMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := ValidateToken(tokenString)
+	formattedToken := strings.TrimPrefix(tokenString, "Bearer ")
+	user, err := ValidateToken(formattedToken)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(w, "Sem autorização")
